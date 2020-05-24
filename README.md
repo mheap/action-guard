@@ -23,6 +23,8 @@ With:
 require("action-guard")("pull_request.closed");
 ```
 
+If you're looking for a way to handle multiple events + actions, you might find [@mheap/action-router](https://github.com/mheap/action-router) useful
+
 ## Installation
 
 ```bash

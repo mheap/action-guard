@@ -1,0 +1,30 @@
+{
+  "name": "action-guard",
+  "version": "0.1.0",
+  "description": "Ensure that your GitHub Action has been triggered with the correct event and payload",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mheap/action-guard.git"
+  },
+  "keywords": [
+    "GitHub",
+    "Actions",
+    "Guard",
+    "Event",
+    "Payload"
+  ],
+  "author": "Michael Heap <m@michaelheap.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mheap/action-guard/issues"
+  },
+  "homepage": "https://github.com/mheap/action-guard#readme",
+  "devDependencies": {
+    "jest": "^26.0.1",
+    "mocked-env": "^1.3.2"
+  }
+}

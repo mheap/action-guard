@@ -1,5 +1,10 @@
-module.exports = (expectedEventName) => {
-  return new Promise((resolve, reject) => {
+module.exports = (guards) => {
+  if (!Array.isArray(guards)) {
+    guards = [guards];
+  }
+  let prefix = "";
+
+  return new Promise(async (resolve, reject) => {
     // Make sure we have the required ENV parameters
     const requiredEnv = ["GITHUB_EVENT_NAME", "GITHUB_EVENT_PATH"];
 
@@ -9,6 +14,35 @@ module.exports = (expectedEventName) => {
       }
     }
 
+    const promises = [];
+    for (let guard of guards) {
+      promises.push(runSingle(guard));
+    }
+
+    const results = await Promise.allSettled(promises);
+
+    const rejected = results.filter((r) => r.status === "rejected");
+
+    if (rejected.length === results.length) {
+      const errors = rejected.map((r) => r.reason).join("\n");
+
+      // If we're checking multiple guards, add a prefix
+      if (guards.length > 1) {
+        prefix = "Expected at least one to pass, but all guards failed:\n\n";
+      }
+      return reject(`${prefix}${errors}`);
+    }
+
+    return resolve();
+  });
+};
+
+function runSingle(params) {
+  if (!params.event) {
+    params = { event: params };
+  }
+  let expectedEventName = params.event;
+  return new Promise((resolve, reject) => {
     // Save the event name and payload
     const event = process.env.GITHUB_EVENT_NAME;
     const payload = require(process.env.GITHUB_EVENT_PATH);
@@ -21,7 +55,7 @@ module.exports = (expectedEventName) => {
       );
     }
 
-    if (payload.action !== expectedAction) {
+    if (expectedAction && payload.action !== expectedAction) {
       return reject(
         `Invalid event. Expected '${expectedEvent}.${expectedAction}', got '${event}.${payload.action}'`
       );
@@ -29,4 +63,4 @@ module.exports = (expectedEventName) => {
 
     return resolve();
   });
-};
+}

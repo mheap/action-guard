@@ -48,6 +48,54 @@ describe("Action Guard", () => {
       );
     });
   });
+
+  describe("Calling formats", () => {
+    it("string", () => {
+      mockEvent("pull_request", { action: "opened" });
+      return expect(guard("push")).rejects.toBe(
+        "Invalid event. Expected 'push', got 'pull_request'"
+      );
+    });
+
+    it("object", () => {
+      mockEvent("pull_request", { action: "opened" });
+      return expect(guard({ event: "push" })).rejects.toBe(
+        "Invalid event. Expected 'push', got 'pull_request'"
+      );
+    });
+
+    it("array of strings", () => {
+      mockEvent("pull_request", { action: "opened" });
+      return expect(guard(["push"])).rejects.toBe(
+        "Invalid event. Expected 'push', got 'pull_request'"
+      );
+    });
+
+    it("array of objects", () => {
+      mockEvent("pull_request", { action: "opened" });
+      return expect(guard([{ event: "push" }])).rejects.toBe(
+        "Invalid event. Expected 'push', got 'pull_request'"
+      );
+    });
+  });
+
+  describe("Multiple Guards", () => {
+    it("rejects if all guards fail (string)", () => {
+      mockEvent("issue", { action: "opened" });
+      return expect(guard(["push", "pull_request"])).rejects.toBe(
+        "Expected at least one to pass, but all guards failed:\n\nInvalid event. Expected 'push', got 'issue'\nInvalid event. Expected 'pull_request', got 'issue'"
+      );
+    });
+
+    it("rejects if all guards fail (object)", () => {
+      mockEvent("issue", { action: "opened" });
+      return expect(
+        guard([{ event: "push" }, { event: "pull_request" }])
+      ).rejects.toBe(
+        "Expected at least one to pass, but all guards failed:\n\nInvalid event. Expected 'push', got 'issue'\nInvalid event. Expected 'pull_request', got 'issue'"
+      );
+    });
+  });
 });
 
 function mockEvent(eventName, mockPayload) {

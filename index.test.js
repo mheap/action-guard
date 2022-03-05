@@ -10,49 +10,41 @@ describe("Action Guard", () => {
   });
 
   describe("Check ENV variables", () => {
-    it("throws if GITHUB_EVENT_NAME is not set", () => {
-      expect(guard).toThrow(
-        new Error("Missing required environment variable: GITHUB_EVENT_NAME")
+    it("rejects if GITHUB_EVENT_NAME is not set", () => {
+      return expect(guard).rejects.toBe(
+        "Missing required environment variable: GITHUB_EVENT_NAME"
       );
     });
 
-    it("throws if GITHUB_EVENT_PATH is not set", () => {
+    it("rejects if GITHUB_EVENT_PATH is not set", () => {
       restore = mockedEnv({
         GITHUB_EVENT_NAME: "push",
       });
-      expect(guard).toThrow(
-        new Error("Missing required environment variable: GITHUB_EVENT_PATH")
+      return expect(guard).rejects.toBe(
+        "Missing required environment variable: GITHUB_EVENT_PATH"
       );
     });
   });
 
   describe("Event Check", () => {
-    it("throws if the GITHUB_EVENT_NAME does not match (event only)", () => {
+    it("rejects if the GITHUB_EVENT_NAME does not match (event only)", () => {
       mockEvent("pull_request", { action: "opened" });
-      expect(() => {
-        guard("push");
-      }).toThrow(
-        new Error("Invalid event. Expected 'push', got 'pull_request'")
+      return expect(guard("push")).rejects.toBe(
+        "Invalid event. Expected 'push', got 'pull_request'"
       );
     });
 
-    it("throws if the GITHUB_EVENT_NAME does not match (event + action)", () => {
+    it("rejects if the GITHUB_EVENT_NAME does not match (event + action)", () => {
       mockEvent("pull_request", { action: "opened" });
-      expect(() => {
-        guard("issue.opened");
-      }).toThrow(
-        new Error("Invalid event. Expected 'issue', got 'pull_request'")
+      return expect(guard("issue.opened")).rejects.toBe(
+        "Invalid event. Expected 'issue', got 'pull_request'"
       );
     });
 
-    it("throws if the action does not match (event + action)", () => {
+    it("rejects if the action does not match (event + action)", () => {
       mockEvent("pull_request", { action: "closed" });
-      expect(() => {
-        guard("pull_request.opened");
-      }).toThrow(
-        new Error(
-          "Invalid event. Expected 'pull_request.opened', got 'pull_request.closed'"
-        )
+      expect(guard("pull_request.opened")).rejects.toBe(
+        "Invalid event. Expected 'pull_request.opened', got 'pull_request.closed'"
       );
     });
   });

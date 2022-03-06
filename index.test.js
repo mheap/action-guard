@@ -76,6 +76,46 @@ describe("Action Guard", () => {
     });
   });
 
+  describe("Arbitrary payload conditions", () => {
+    it("throws if the required fields are different in the payload", () => {
+      mockEvent("pull_request", { user: { login: "fake_user" } });
+      expect(() => {
+        guard({
+          event: "pull_request",
+          payload: { user: { login: "mheap" } },
+        });
+      }).toThrow(
+        new Error(
+          `Invalid payload. Expected '{"user":{"login":"mheap"}}', got '{"user":{"login":"fake_user"}}'`
+        )
+      );
+    });
+
+    it("throws if the required fields are not in the payload", () => {
+      mockEvent("pull_request", { user: { email: "user@example.com" } });
+      expect(() => {
+        guard({
+          event: "pull_request",
+          payload: { user: { login: "mheap" } },
+        });
+      }).toThrow(
+        new Error(
+          `Invalid payload. Expected '{"user":{"login":"mheap"}}', got '{"user":{"email":"user@example.com"}}'`
+        )
+      );
+    });
+
+    it("does not throw if the payload matches", () => {
+      mockEvent("pull_request", { user: { login: "mheap" } });
+      expect(
+        guard({
+          event: "pull_request",
+          payload: { user: { login: "mheap" } },
+        })
+      ).toBe(undefined);
+    });
+  });
+
   describe("Calling formats", () => {
     it("string", () => {
       mockEvent("pull_request", { action: "opened" });

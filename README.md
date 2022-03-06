@@ -53,6 +53,21 @@ try {
 }
 ```
 
+### Matching arbitrary payloads
+
+In addition to checking the event, you can also check for entries in the provided `GITHUB_EVENT`.
+
+Here's an example that will throw if the pull request was not opened by `mheap`:
+
+```javascript
+guard({
+  event: "pull_request.opened",
+  payload: { user: { login: "mheap" } },
+});
+```
+
+See https://docs.github.com/en/developers/webhooks-and-events/webhooks/webhook-events-and-payloads for sample payloads
+
 ### Matching multiple conditions
 
 You can provide multiple conditions to validate. If all fail, an `Error` will be thrown.

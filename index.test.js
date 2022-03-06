@@ -1,6 +1,11 @@
 const guard = require(".");
 const mockedEnv = require("mocked-env");
 
+// Delete the GITHUB_EVENT_NAME and GITHUB_EVENT_PATH keys
+// as they'll be present by default on the GitHub Actions runners
+delete process.env.GITHUB_EVENT_NAME;
+delete process.env.GITHUB_EVENT_PATH;
+
 describe("Action Guard", () => {
   let restore = () => {};
 
@@ -11,7 +16,9 @@ describe("Action Guard", () => {
 
   describe("Check ENV variables", () => {
     it("throws if GITHUB_EVENT_NAME is not set", () => {
-      expect(guard).toThrow(
+      expect(() => {
+        guard("push");
+      }).toThrow(
         new Error("Missing required environment variable: GITHUB_EVENT_NAME")
       );
     });
@@ -20,9 +27,21 @@ describe("Action Guard", () => {
       restore = mockedEnv({
         GITHUB_EVENT_NAME: "push",
       });
-      expect(guard).toThrow(
+      expect(() => {
+        guard("push");
+      }).toThrow(
         new Error("Missing required environment variable: GITHUB_EVENT_PATH")
       );
+    });
+
+    it("throws if no event is provided", () => {
+      restore = mockedEnv({
+        GITHUB_EVENT_NAME: "push",
+        GITHUB_EVENT_PATH: "/path/to/event.json",
+      });
+      expect(() => {
+        guard("");
+      }).toThrow(new Error("Usage: guard('<event>')"));
     });
   });
 

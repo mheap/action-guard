@@ -32,6 +32,9 @@ module.exports = (guards) => {
 };
 
 function runSingle(params) {
+  if (!params) {
+    throw new Error("Usage: guard('<event>')");
+  }
   if (!params.event) {
     params = { event: params };
   }

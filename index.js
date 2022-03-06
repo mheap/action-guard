@@ -1,3 +1,5 @@
+const _ = require("lodash");
+
 module.exports = (guards) => {
   if (!Array.isArray(guards)) {
     guards = [guards];
@@ -59,5 +61,31 @@ function runSingle(params) {
     };
   }
 
+  if (params.payload) {
+    const expectedPayload = params.payload;
+    if (!payloadIncludes(payload, expectedPayload)) {
+      return {
+        success: false,
+        reason: `Invalid payload. Expected '${JSON.stringify(
+          expectedPayload
+        )}', got '${JSON.stringify(payload)}'`,
+      };
+    }
+  }
   return { success: true };
+}
+
+function payloadIncludes(base, object) {
+  function changes(object, base) {
+    return _.transform(object, function (result, value, key) {
+      if (!_.isEqual(value, base[key])) {
+        result[key] =
+          _.isObject(value) && _.isObject(base[key])
+            ? changes(value, base[key])
+            : value;
+      }
+    });
+  }
+
+  return _.isEmpty(changes(object, base));
 }

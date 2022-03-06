@@ -56,6 +56,56 @@ describe("Action Guard", () => {
       );
     });
   });
+
+  describe("Calling formats", () => {
+    it("string", () => {
+      mockEvent("pull_request", { action: "opened" });
+      return expect(() => {
+        guard("push");
+      }).toThrow("Invalid event. Expected 'push', got 'pull_request'");
+    });
+
+    it("object", () => {
+      mockEvent("pull_request", { action: "opened" });
+      return expect(() => {
+        guard({ event: "push" });
+      }).toThrow("Invalid event. Expected 'push', got 'pull_request'");
+    });
+
+    it("array of strings", () => {
+      mockEvent("pull_request", { action: "opened" });
+      return expect(() => {
+        guard(["push"]);
+      }).toThrow("Invalid event. Expected 'push', got 'pull_request'");
+    });
+
+    it("array of objects", () => {
+      mockEvent("pull_request", { action: "opened" });
+      return expect(() => {
+        guard([{ event: "push" }]);
+      }).toThrow("Invalid event. Expected 'push', got 'pull_request'");
+    });
+  });
+
+  describe("Multiple Guards", () => {
+    it("throws if all guards fail (string)", () => {
+      mockEvent("issue", { action: "opened" });
+      return expect(() => {
+        guard(["push", "pull_request"]);
+      }).toThrow(
+        "Expected at least one to pass, but all guards failed:\n\nInvalid event. Expected 'push', got 'issue'\nInvalid event. Expected 'pull_request', got 'issue'"
+      );
+    });
+
+    it("throws if all guards fail (object)", () => {
+      mockEvent("issue", { action: "opened" });
+      return expect(() => {
+        guard([{ event: "push" }, { event: "pull_request" }]);
+      }).toThrow(
+        "Expected at least one to pass, but all guards failed:\n\nInvalid event. Expected 'push', got 'issue'\nInvalid event. Expected 'pull_request', got 'issue'"
+      );
+    });
+  });
 });
 
 function mockEvent(eventName, mockPayload) {

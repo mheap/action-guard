@@ -33,7 +33,7 @@ npm install action-guard
 
 ## Usage
 
-Action Guard will throw an error if the `GITHUB_EVENT_NAME` does not match what is expected
+Action Guard will throw if the `GITHUB_EVENT_NAME` does not match what is expected
 
 If you're happy to leave it uncaught (leading to a `process.exit(1)`) you can add it as one line:
 
@@ -51,4 +51,14 @@ try {
 } catch (e) {
   // It didn't match. Let's do something else
 }
+```
+
+### Matching multiple conditions
+
+You can provide multiple conditions to validate. If all fail, an `Error` will be thrown.
+
+Here's an example that allows an action to run when closing an `issue` or `pull_request`:
+
+```javascript
+guard(["issue.closed", "pull_request.closed"]);
 ```

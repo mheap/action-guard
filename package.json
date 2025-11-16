@@ -1,6 +1,6 @@
 {
   "name": "action-guard",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Ensure that your GitHub Action has been triggered with the correct event and payload",
   "main": "index.js",
   "scripts": {
